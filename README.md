@@ -98,9 +98,6 @@ This dashboard is Phase 1 of a larger planned platform:
 - [ ] **Phase 6** — AI Copilot: conversational assistant for ops/security queries
 - [ ] **Phase 7** — Analytics, Reports, and interactive Digital Twin (React Flow)
 
-## 📸 Screenshots
-
-_Add screenshots or a short demo GIF of the dashboard here._
 
 ## 👤 Author
 
