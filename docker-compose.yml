@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16
+    container_name: aegis-db
+    environment:
+      - POSTGRES_USER=aegis
+      - POSTGRES_PASSWORD=aegis
+      - POSTGRES_DB=aegisdb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+    container_name: aegis-redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  pgdata:
