@@ -2,8 +2,6 @@
 
 > AI-powered, unified security & infrastructure command center — Executive Dashboard prototype.
 
-Built for **Odoo x KSV Hackathon 2026**.
-
 ---
 
 ## 🖥️ Overview
