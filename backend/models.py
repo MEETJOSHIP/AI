@@ -6,7 +6,7 @@ from sqlalchemy import Column, String, DateTime, Enum, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
-from database import Base
+from backend.database import Base
 
 
 class Role(str, enum.Enum):

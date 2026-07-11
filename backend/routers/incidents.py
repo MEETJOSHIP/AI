@@ -4,10 +4,9 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-import models
-import schemas
-from database import get_db
-from auth import get_current_user
+from backend import models, schemas
+from backend.database import get_db
+from backend.auth import get_current_user
 
 router = APIRouter(prefix="/api/incidents", tags=["incidents"])
 

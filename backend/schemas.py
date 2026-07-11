@@ -4,7 +4,7 @@ from typing import Optional
 
 from pydantic import BaseModel, EmailStr
 
-from models import Role, Severity, Status
+from backend.models import Role, Severity, Status
 
 
 # ---- Auth ----
