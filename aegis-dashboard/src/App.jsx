@@ -294,6 +294,9 @@ export default function ExecutiveCommandCenter() {
   const handleLogout = () => {
     setToken(null);
     setRealIncidents(null);
+    setLoginPassword("");
+    setLoginEmail("");
+    setLoginError("");
   };
 
   useEffect(() => {
