@@ -2,13 +2,16 @@ import React, { useEffect, useRef, useState, useMemo, useCallback } from "react"
 import {
   Shield, Search, Bell, Settings, TrendingUp, TrendingDown,
   Radio, AlertTriangle, ShieldAlert, Cloud, Network, Cpu,
-  ChevronRight, Circle,
+  ChevronRight, Circle, Code2, Sparkles, Boxes, BarChart3,
+  FileText, LayoutDashboard, Crosshair, Lock, LogOut,
 } from "lucide-react";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
 
 // ---------- Mock data ----------
+
+const API_BASE = "http://localhost:8000";
 
 const KPIS = [
   { label: "Security Score", value: 83, suffix: "/100", trend: 6, color: "text-indigo-400", bar: "bg-indigo-500" },
@@ -44,6 +47,28 @@ const ALERT_POOL = [
   { text: "Failed MFA challenge \u2014 admin acct", sev: "critical" },
   { text: "Suspicious lateral movement flagged", sev: "critical" },
 ];
+
+const MODULES = [
+  { name: "SOC", desc: "Threat detection, MITRE ATT&CK mapping, case management", icon: Shield },
+  { name: "NOC", desc: "Device, link, bandwidth & topology monitoring", icon: Network },
+  { name: "CloudOps", desc: "Multi-cloud monitoring, cost & security posture", icon: Cloud },
+  { name: "DevSecOps", desc: "Code scanning, CI/CD, container & secrets security", icon: Code2 },
+  { name: "AI Copilot", desc: "Conversational assistant for ops & security questions", icon: Sparkles },
+  { name: "Digital Twin", desc: "Interactive 3D infrastructure map with live status", icon: Boxes },
+  { name: "Incidents", desc: "Assign, triage and resolve incidents end to end", icon: AlertTriangle },
+  { name: "Analytics", desc: "Advanced analytics across security, network & cloud", icon: BarChart3 },
+  { name: "Reports", desc: "Executive, security & compliance report generation", icon: FileText },
+  { name: "Attack Simulator", desc: "AI-powered attack simulation & response testing", icon: Crosshair },
+];
+
+const TECH_STACK = {
+  Frontend: ["React", "Tailwind CSS", "Recharts", "Lucide"],
+  Backend: ["FastAPI", "SQLAlchemy", "Pydantic", "JWT"],
+  Database: ["PostgreSQL"],
+  "Infra / DevOps": ["Docker", "Redis", "Celery", "S3 / Local Storage"],
+};
+
+const ARCHITECTURE_FLOW = ["Frontend (React)", "REST API", "FastAPI Backend", "SQLAlchemy ORM", "PostgreSQL"];
 
 const SEV_STYLE = {
   critical: { dot: "bg-red-500", text: "text-red-400" },
@@ -229,6 +254,70 @@ export default function ExecutiveCommandCenter() {
   const [traffic, setTraffic] = useState(makeTraffic);
   const [liveCount, setLiveCount] = useState(87);
 
+  // ---- Real backend auth + incidents ----
+  const [token, setToken] = useState(null);
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [realIncidents, setRealIncidents] = useState(null); // null = not connected yet
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoginError("");
+    setLoginLoading(true);
+    try {
+      const body = new URLSearchParams();
+      body.append("username", loginEmail);
+      body.append("password", loginPassword);
+
+      const res = await fetch(`${API_BASE}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body,
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Login failed");
+      }
+
+      const data = await res.json();
+      setToken(data.access_token);
+    } catch (err) {
+      setLoginError(err.message || "Could not reach the backend");
+    } finally {
+      setLoginLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    setToken(null);
+    setRealIncidents(null);
+  };
+
+  useEffect(() => {
+    if (!token) return;
+
+    const fetchSummary = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/incidents/summary`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error("Failed to fetch");
+        const data = await res.json();
+        setRealIncidents(data);
+      } catch {
+        // backend unreachable mid-session - leave last known value in place
+      }
+    };
+
+    fetchSummary();
+    const iv = setInterval(fetchSummary, 5000);
+    return () => clearInterval(iv);
+  }, [token]);
+
+
   useEffect(() => {
     const clock = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(clock);
@@ -293,8 +382,52 @@ export default function ExecutiveCommandCenter() {
           </div>
           <Bell className="w-4 h-4 text-slate-500" />
           <Settings className="w-4 h-4 text-slate-500" />
+          {token ? (
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-1.5 text-[11px] text-slate-400 hover:text-red-400 border border-slate-700 hover:border-red-500/40 rounded px-2 py-1 transition-colors"
+            >
+              <LogOut className="w-3 h-3" /> Disconnect
+            </button>
+          ) : null}
         </div>
       </header>
+
+      {!token && (
+        <div className="max-w-sm mx-auto mt-4 px-5">
+          <form
+            onSubmit={handleLogin}
+            className="bg-slate-900/60 border border-slate-800 rounded-lg p-4 space-y-3"
+          >
+            <div className="flex items-center gap-2 text-xs text-slate-400">
+              <Lock className="w-3.5 h-3.5 text-indigo-400" />
+              Connect to live backend (optional — dashboard below runs on simulated data either way)
+            </div>
+            <input
+              type="email"
+              placeholder="email"
+              value={loginEmail}
+              onChange={(e) => setLoginEmail(e.target.value)}
+              className="w-full bg-slate-950 border border-slate-700 rounded px-3 py-1.5 text-xs text-slate-200 placeholder-slate-600 outline-none focus:border-indigo-500"
+            />
+            <input
+              type="password"
+              placeholder="password"
+              value={loginPassword}
+              onChange={(e) => setLoginPassword(e.target.value)}
+              className="w-full bg-slate-950 border border-slate-700 rounded px-3 py-1.5 text-xs text-slate-200 placeholder-slate-600 outline-none focus:border-indigo-500"
+            />
+            {loginError && <div className="text-[11px] text-red-400">{loginError}</div>}
+            <button
+              type="submit"
+              disabled={loginLoading}
+              className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-medium rounded py-1.5 transition-colors"
+            >
+              {loginLoading ? "Connecting..." : "Connect"}
+            </button>
+          </form>
+        </div>
+      )}
 
       <main className="relative p-5 space-y-5 max-w-[1400px] mx-auto">
         {/* KPI row */}
@@ -365,9 +498,20 @@ export default function ExecutiveCommandCenter() {
         {/* Incidents / Recommendations / Traffic */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="bg-slate-900/60 border border-slate-800 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <ShieldAlert className="w-4 h-4 text-amber-400" />
-              <span className="text-sm font-medium text-slate-200">Active Incidents</span>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <ShieldAlert className="w-4 h-4 text-amber-400" />
+                <span className="text-sm font-medium text-slate-200">Active Incidents</span>
+              </div>
+              <span
+                className={`text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded ${
+                  realIncidents
+                    ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
+                    : "bg-slate-800 text-slate-500 border border-slate-700"
+                }`}
+              >
+                {realIncidents ? "Live DB" : "Simulated"}
+              </span>
             </div>
             <div className="space-y-2.5">
               {INCIDENTS.map((i) => (
@@ -376,13 +520,15 @@ export default function ExecutiveCommandCenter() {
                     <span className={`w-1.5 h-1.5 rounded-full ${i.color}`} />
                     {i.label}
                   </div>
-                  <span className={`font-mono ${i.text}`}>{i.count}</span>
+                  <span className={`font-mono ${i.text}`}>
+                    {realIncidents ? realIncidents[i.label.toLowerCase()] ?? 0 : i.count}
+                  </span>
                 </div>
               ))}
               <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-800">
                 <span className="text-slate-500">Total</span>
                 <span className="font-mono text-slate-200">
-                  {INCIDENTS.reduce((s, i) => s + i.count, 0)}
+                  {realIncidents ? realIncidents.total ?? 0 : INCIDENTS.reduce((s, i) => s + i.count, 0)}
                 </span>
               </div>
             </div>
@@ -429,6 +575,75 @@ export default function ExecutiveCommandCenter() {
               </ResponsiveContainer>
             </div>
           </div>
+        </div>
+
+        {/* Core Modules Overview */}
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <LayoutDashboard className="w-4 h-4 text-indigo-400" />
+            <span className="text-xs uppercase tracking-widest text-indigo-400 font-semibold">Core Modules Overview</span>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+            {MODULES.map((m) => {
+              const Icon = m.icon;
+              return (
+                <div
+                  key={m.name}
+                  className="bg-slate-900/60 border border-slate-800 rounded-lg p-4 hover:border-indigo-500/50 transition-colors"
+                >
+                  <div className="w-8 h-8 rounded-md bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center mb-3">
+                    <Icon className="w-4 h-4 text-indigo-400" />
+                  </div>
+                  <div className="text-sm font-medium text-slate-200 mb-1">{m.name}</div>
+                  <div className="text-[11px] text-slate-500 leading-snug">{m.desc}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Tech Stack & Architecture */}
+        <div className="border-t border-slate-800 pt-5">
+          <div className="text-xs uppercase tracking-widest text-red-400 font-semibold mb-4">
+            Tech Stack &amp; Architecture
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <div className="grid grid-cols-2 gap-3">
+              {Object.entries(TECH_STACK).map(([category, items]) => (
+                <div key={category} className="bg-slate-900/60 border border-slate-800 rounded-lg p-3">
+                  <div className="text-[10px] uppercase tracking-wider text-slate-500 mb-2">{category}</div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {items.map((item) => (
+                      <span
+                        key={item}
+                        className="text-[11px] font-mono px-2 py-1 rounded bg-slate-800 border border-slate-700 text-slate-300"
+                      >
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="bg-slate-900/60 border border-slate-800 rounded-lg p-4 flex items-center">
+              <div className="w-full flex flex-wrap items-center justify-center gap-2">
+                {ARCHITECTURE_FLOW.map((step, i) => (
+                  <React.Fragment key={step}>
+                    <span className="text-[11px] font-mono px-2.5 py-1.5 rounded bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 whitespace-nowrap">
+                      {step}
+                    </span>
+                    {i < ARCHITECTURE_FLOW.length - 1 && (
+                      <ChevronRight className="w-3.5 h-3.5 text-slate-600 flex-shrink-0" />
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="text-center text-[11px] text-slate-600 pt-2 pb-4">
+          AEGIS<span className="text-indigo-400">AI</span> — See Everything. Predict Everything. Secure Everything.
         </div>
       </main>
     </div>

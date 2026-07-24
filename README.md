@@ -14,12 +14,14 @@ This repository contains the **Executive Command Center** module: a fully functi
 
 This is a **hackathon prototype**, not a production system.
 
-| Layer | Status |
-|---|---|
-| Frontend UI (this repo) | ✅ Fully functional |
-| Data shown on screen | 🎭 Simulated (mock data, randomized in-browser) |
-| Backend / Database | 🚧 Not yet built — see [Roadmap](#-roadmap) |
-| Cloud / security integrations | 🚧 Not yet built |
+
+| Layer                         | Status                                          |
+| ----------------------------- | ----------------------------------------------- |
+| Frontend UI (this repo)       | ✅ Fully functional                              |
+| Data shown on screen          | 🎭 Simulated (mock data, randomized in-browser) |
+| Backend / Database            | 🚧 Not yet built — see [Roadmap](#-roadmap)     |
+| Cloud / security integrations | 🚧 Not yet built                                |
+
 
 All metrics, alerts, and incidents are generated client-side for demo purposes and reset on page refresh. No real infrastructure, cloud account, or security tooling is connected.
 
@@ -34,9 +36,12 @@ All metrics, alerts, and incidents are generated client-side for demo purposes a
 - **Core Modules Overview** — preview grid of the planned platform (SOC, NOC, CloudOps, DevSecOps, AI Copilot, Digital Twin, Incidents, Analytics, Reports, Attack Simulator)
 - Dark, cyberpunk-inspired UI with an indigo/cyan accent system
 
+
+
 ## 🛠️ Tech Stack
 
 **Frontend**
+
 - React 18
 - Vite
 - Tailwind CSS v4
@@ -44,15 +49,23 @@ All metrics, alerts, and incidents are generated client-side for demo purposes a
 - Lucide React (icons)
 
 **Planned backend** *(not yet implemented — see Roadmap)*
+
 - FastAPI
 - SQLAlchemy + PostgreSQL
 - JWT Authentication / RBAC
 
+
+
 ## 🚀 Getting Started
 
+
+
 ### Prerequisites
+
 - Node.js 18+
 - npm
+
+
 
 ### Installation
 
@@ -72,6 +85,8 @@ npm run build
 npm run preview
 ```
 
+
+
 ## 📁 Project Structure
 
 ```
@@ -84,6 +99,8 @@ aegis-dashboard/
 └── package.json
 ```
 
+
+
 ## 🗺️ Roadmap
 
 This dashboard is Phase 1 of a larger planned platform:
@@ -95,6 +112,7 @@ This dashboard is Phase 1 of a larger planned platform:
 - [ ] **Phase 5** — CloudOps + DevSecOps: cloud resource monitoring, vulnerability & secrets scanning
 - [ ] **Phase 6** — AI Copilot: conversational assistant for ops/security queries
 - [ ] **Phase 7** — Analytics, Reports, and interactive Digital Twin (React Flow)
+
 
 
 ## 👤 Author
