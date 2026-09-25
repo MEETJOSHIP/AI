@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Shield, Lock } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -83,7 +83,14 @@ export default function Login() {
           </button>
         </form>
 
-        <p className="text-center text-[11px] text-slate-600 mt-4">
+        <p className="text-center text-xs text-slate-500 mt-4">
+          Don&apos;t have an account?{" "}
+          <Link to="/register" className="text-indigo-400 hover:text-indigo-300">
+            Create one
+          </Link>
+        </p>
+
+        <p className="text-center text-[11px] text-slate-600 mt-3">
           Simulated dashboard data loads regardless of login — this only unlocks live backend data.
         </p>
       </div>

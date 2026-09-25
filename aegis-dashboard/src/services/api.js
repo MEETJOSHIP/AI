@@ -30,3 +30,19 @@ export async function createIncident(token, payload) {
 }
 
 export { API_BASE };
+
+export async function registerUser(payload) {
+  const res = await fetch(`${API_BASE}/api/auth/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    const detail = Array.isArray(err.detail)
+      ? err.detail.map((d) => d.msg).join(", ")
+      : err.detail || "Registration failed";
+    throw new Error(detail);
+  }
+  return res.json();
+}
